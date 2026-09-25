@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Voice Assistant | Muhammad Junaid FullStack Developer</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* Sleek Dark Mode with Glassmorphism */
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+            color: #ffffff;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+        
+        .header {
+            position: absolute;
+            top: 30px;
+            text-align: center;
+            animation: fadeInDown 0.8s ease-out;
+        }
+
+        @keyframes fadeInDown {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .header h1 {
+            margin: 0;
+            font-weight: 600;
+            font-size: 2rem;
+            letter-spacing: 1px;
+            color: #00d2ff;
+        }
+
+        .header p {
+            margin: 8px 0 0 0;
+            font-size: 1rem;
+            color: #a0b0b9;
+        }
+
+        .container {
+            width: 90%;
+            max-width: 600px;
+            height: 60vh;
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            transition: transform 0.3s ease;
+            animation: fadeInUp 0.8s ease-out;
+        }
+
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .status-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .status-indicator {
+            width: 12px;
+            height: 12px;
+            background-color: #ff3b30; 
+            border-radius: 50%;
+            box-shadow: 0 0 10px #ff3b30;
+            transition: all 0.3s ease;
+        }
+
+        .status-indicator.listening {
+            background-color: #34c759; 
+            box-shadow: 0 0 20px #34c759;
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(52, 199, 89, 0.7); }
+            70% { transform: scale(1.1); box-shadow: 0 0 0 10px rgba(52, 199, 89, 0); }
+            100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(52, 199, 89, 0); }
+        }
+
+        .status-text {
+            font-size: 0.85rem;
+            color: #a0b0b9;
+        }
+
+        .chat-box {
+            width: 100%;
+            flex: 1;
+            overflow-y: auto;
+            margin-top: 10px;
+            padding-right: 10px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        /* Scrollbar customization */
+        .chat-box::-webkit-scrollbar {
+            width: 6px;
+        }
+        .chat-box::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 10px;
+        }
+
+        .message {
+            padding: 12px 18px;
+            border-radius: 15px;
+            max-width: 80%;
+            font-size: 0.95rem;
+            line-height: 1.4;
+            animation: fadeInMsg 0.4s ease-out;
+        }
+
+        @keyframes fadeInMsg {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .user-msg {
+            background: rgba(255, 255, 255, 0.1);
+            align-self: flex-end;
+            border-bottom-right-radius: 2px;
+            color: #e0e0e0;
+        }
+
+        .assistant-msg {
+            background: rgba(0, 210, 255, 0.15);
+            align-self: flex-start;
+            border-bottom-left-radius: 2px;
+            color: #ffffff;
+            border: 1px solid rgba(0, 210, 255, 0.3);
+        }
+
+        .controls {
+            display: flex;
+            width: 100%;
+            gap: 15px;
+            align-items: center;
+        }
+
+        .mic-btn {
+            background: linear-gradient(135deg, #00d2ff 0%, #3a7bd5 100%);
+            border: none;
+            border-radius: 50%;
+            width: 60px;
+            height: 60px;
+            min-width: 60px;
+            font-size: 24px;
+            color: white;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 15px rgba(0, 210, 255, 0.4);
+            transition: all 0.3s ease;
+        }
+
+        .mic-btn:hover {
+            transform: translateY(-3px) scale(1.05);
+            box-shadow: 0 8px 25px rgba(0, 210, 255, 0.6);
+        }
+
+        .mic-btn:active {
+            transform: translateY(1px);
+        }
+
+        .text-input {
+            flex: 1;
+            padding: 15px 20px;
+            border-radius: 30px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            background: rgba(0, 0, 0, 0.2);
+            color: white;
+            font-size: 1rem;
+            outline: none;
+            transition: all 0.3s;
+        }
+
+        .text-input:focus {
+            border-color: #00d2ff;
+            background: rgba(0, 0, 0, 0.4);
+        }
+
+        .send-btn {
+            background: transparent;
+            border: none;
+            color: #00d2ff;
+            font-size: 1.8rem;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .send-btn:hover {
+            transform: scale(1.1);
+        }
+        
+        .footer {
+            position: absolute;
+            bottom: 20px;
+            font-size: 0.8rem;
+            color: rgba(255,255,255,0.5);
+        }
+
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Voice Assistant</h1>
+        <p>By Muhammad Junaid FullStack Developer</p>
+    </div>
+
+    <div class="container">
+        <div class="status-wrapper">
+            <div class="status-indicator" id="statusIndicator"></div>
+            <span class="status-text" id="statusText">System Ready. Click the microphone or type below.</span>
+        </div>
+
+        <div class="chat-box" id="chatBox">
+            <div class="message assistant-msg">Hello! I am your advanced AI voice assistant developed by Muhammad Junaid. You can ask me for the time, weather, web searches, or Wikipedia summaries!</div>
+        </div>
+
+        <div class="controls">
+            <button class="mic-btn" id="micBtn" title="Click to speak">
+                <i class="fa-solid fa-microphone"></i>
+            </button>
+            <input type="text" id="textInput" class="text-input" placeholder="Type a command...">
+            <button class="send-btn" id="sendBtn"><i class="fa-solid fa-paper-plane"></i></button>
+        </div>
+    </div>
+
+    <div class="footer">
+        Powered by Web Speech API & Flask Backend
+    </div>
+
+    <script>
+        const chatBox = document.getElementById('chatBox');
+        const micBtn = document.getElementById('micBtn');
+        const textInput = document.getElementById('textInput');
+        const sendBtn = document.getElementById('sendBtn');
+        const statusIndicator = document.getElementById('statusIndicator');
+        const statusText = document.getElementById('statusText');
+
+        // Check for browser speech recognition support
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        let recognition = null;
+        if (SpeechRecognition) {
+            recognition = new SpeechRecognition();
+            recognition.continuous = false;
+            recognition.lang = 'en-US';
+            recognition.interimResults = false;
+            recognition.maxAlternatives = 1;
+        } else {
+            statusText.innerText = "Speech Recognition not supported in this browser. Please type.";
+            micBtn.style.opacity = '0.5';
+            micBtn.style.cursor = 'not-allowed';
+        }
+
+        // Check for speech synthesis
+        const synth = window.speechSynthesis;
+
+        function speakText(text) {
+            if (synth.speaking) {
+                console.error('speechSynthesis.speaking');
+            }
+            if (text !== '') {
+                const utterThis = new SpeechSynthesisUtterance(text);
+                utterThis.pitch = 1;
+                utterThis.rate = 1;
+                synth.speak(utterThis);
+            }
+        }
+
+        function addMessage(sender, text) {
+            const msgDiv = document.createElement('div');
+            msgDiv.classList.add('message');
+            if (sender === 'user') {
+                msgDiv.classList.add('user-msg');
+            } else {
+                msgDiv.classList.add('assistant-msg');
+            }
+            msgDiv.innerText = text;
+            chatBox.appendChild(msgDiv);
+            chatBox.scrollTop = chatBox.scrollHeight;
+        }
+
+        function handleCommand(command) {
+            addMessage('user', command);
+            statusText.innerText = "Processing...";
+            
+            fetch('/api/chat', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ command: command })
+            })
+            .then(res => res.json())
+            .then(data => {
+                const responseText = data.text;
+                statusText.innerText = "System Ready.";
+                addMessage('assistant', responseText);
+                speakText(responseText);
+
+                // Handle actions
+                if (data.action) {
+                    if (data.action.type === 'search') {
+                        setTimeout(() => {
+                            window.open(`https://www.google.com/search?q=${data.action.query}`, '_blank');
+                        }, 1500);
+                    } else if (data.action.type === 'reminder') {
+                        setTimeout(() => {
+                            speakText("Reminder: Time is up! This is your alert.");
+                            alert("Reminder Alert!");
+                        }, data.action.duration * 1000);
+                    }
+                }
+            })
+            .catch(err => {
+                statusText.innerText = "Error connecting to server.";
+                addMessage('assistant', "Sorry, there was an error connecting to the server.");
+                console.error(err);
+            });
+        }
+
+        if (recognition) {
+            recognition.onstart = function() {
+                statusIndicator.classList.add('listening');
+                statusText.innerText = "Listening... speak now.";
+            };
+
+            recognition.onspeechend = function() {
+                recognition.stop();
+                statusIndicator.classList.remove('listening');
+                statusText.innerText = "Processing...";
+            };
+
+            recognition.onresult = function(event) {
+                const transcript = event.results[0][0].transcript;
+                handleCommand(transcript);
+            };
+
+            recognition.onerror = function(event) {
+                statusIndicator.classList.remove('listening');
+                statusText.innerText = "Error occurred in recognition: " + event.error;
+            };
+
+            micBtn.addEventListener('click', () => {
+                try {
+                    recognition.start();
+                } catch (e) {
+                    recognition.stop();
+                }
+            });
+        }
+
+        sendBtn.addEventListener('click', () => {
+            const val = textInput.value.trim();
+            if (val) {
+                textInput.value = '';
+                handleCommand(val);
+            }
+        });
+
+        textInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                sendBtn.click();
+            }
+        });
+
+    </script>
+</body>
+</html>
