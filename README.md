@@ -1,5 +1,7 @@
 # Python Voice Assistant
 
+Created by **Muhammad Junaid FullStack Developer**
+
 A feature-rich Python voice assistant that listens to spoken commands and responds with useful actions, implementing both beginner and advanced features.
 
 ## Features
@@ -23,11 +25,17 @@ A feature-rich Python voice assistant that listens to spoken commands and respon
 ## Requirements
 
 - Python 3.7+
-- PyAudio (required for microphone input)
+- PyAudio (required for microphone input locally)
+- pyttsx3 (required for text-to-speech output locally)
 
-Install dependencies using:
+Install core dependencies using:
 ```bash
 pip install -r requirements.txt
+```
+
+To use the voice assistant locally on your computer, you must also install the local hardware libraries:
+```bash
+pip install PyAudio pyttsx3
 ```
 
 *Note: On Windows, installing PyAudio might require downloading a precompiled wheel if the build fails.*
